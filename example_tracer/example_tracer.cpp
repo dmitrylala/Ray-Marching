@@ -57,9 +57,9 @@ void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, u
     for(uint32_t x=0;x<width;x++) 
     {
       auto rayDir      = EyeRayDir((float)x + 0.5f, (float)y + 0.5f, (float)width, (float)height, m_worldViewProjInv); 
-      auto rayPos      = float3(0.0f, 0.0f, 0.0f);
+      auto rayPos      = float3(0.0f, 2.0f, -5.0f);
       
-      auto tNearAndFar = RaySphereHit(rayPos, rayDir, float4(0,0,-3.0f,1.0f));
+      auto tNearAndFar = RaySphereHit(rayPos, rayDir, float4(0,0,0.0f,2.0f));
       
       uint32_t resColor = 0;
       if(tNearAndFar.x < tNearAndFar.y)
