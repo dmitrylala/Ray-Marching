@@ -39,13 +39,11 @@ static inline float3 EyeRayDir(float x, float y, float4x4 a_mViewProjInv)
 
 static inline void transform_ray3f(float4x4 a_mWorldViewInv, float3* ray_pos, float3* ray_dir) 
 {
-  float3 pos  = mul4x3(a_mWorldViewInv, (*ray_pos));
-  float3 pos2 = mul4x3(a_mWorldViewInv, ((*ray_pos) + 100.0f*(*ray_dir)));
-
-  float3 diff = pos2 - pos;
-
-  (*ray_pos)  = pos;
-  (*ray_dir)  = normalize(diff);
+  float4 rayPosTransformed = a_mWorldViewInv*to_float4(*ray_pos, 1.0f);
+  float4 rayDirTransformed = a_mWorldViewInv*to_float4(*ray_dir, 0.0f);
+  
+  (*ray_pos) = to_float3(rayPosTransformed);
+  (*ray_dir) = to_float3(normalize(rayDirTransformed));
 }
 
 float4 RayMarchConstantFog(float tmin, float tmax, float& alpha)
