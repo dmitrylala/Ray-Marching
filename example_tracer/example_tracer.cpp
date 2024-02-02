@@ -1,40 +1,6 @@
 #include <vector>
 #include "example_tracer.h"
 
-static inline float2 RaySphereHit(float3 orig, float3 dir, float4 sphere) // see Ray Tracing Gems Book
-{
-  const float3 center = to_float3(sphere);
-  const float  radius = sphere.w;
-
-  // Hearn and Baker equation 10-72 for when radius^2 << distance between origin and center
-	// Also at https://www.cg.tuwien.ac.at/courses/EinfVisComp/Slides/SS16/EVC-11%20Ray-Tracing%20Slides.pdf
-	// Assumes ray direction is normalized
-	//dir = normalize(dir);
-	const float3 deltap   = center - orig;
-	const float ddp       = dot(dir, deltap);
-	const float deltapdot = dot(deltap, deltap);
-
-	// old way, "standard", though it seems to be worse than the methods above
-	//float discriminant = ddp * ddp - deltapdot + radius * radius;
-	float3 remedyTerm  = deltap - ddp * dir;
-	float discriminant = radius * radius - dot(remedyTerm, remedyTerm);
-
-  float2 result = {0,0};
-	if (discriminant >= 0.0f)
-	{
-		const float sqrtVal = std::sqrt(discriminant);
-		// include Press, William H., Saul A. Teukolsky, William T. Vetterling, and Brian P. Flannery, "Numerical Recipes in C," Cambridge University Press, 1992.
-		const float q = (ddp >= 0) ? (ddp + sqrtVal) : (ddp - sqrtVal);
-		// we don't bother testing for division by zero
-		const float t1 = q;
-		const float t2 = (deltapdot - radius * radius) / q;
-    result.x = std::min(t1,t2);
-    result.y = std::max(t1,t2);
-  }
-
-  return result;
-}
-
 float2 RayBoxIntersection(float3 ray_pos, float3 ray_dir, float3 boxMin, float3 boxMax)
 {
   ray_dir.x = 1.0f/ray_dir.x; // may precompute if intersect many boxes
@@ -59,7 +25,7 @@ float2 RayBoxIntersection(float3 ray_pos, float3 ray_dir, float3 boxMin, float3 
   tmin = std::max(tmin, std::min(lo2, hi2));
   tmax = std::min(tmax, std::max(lo2, hi2));
   
-  return float2(tmin, tmax);//(tmin <= tmax) && (tmax > 0.f);
+  return float2(tmin, tmax);
 }
 
 static inline float3 EyeRayDir(float x, float y, float4x4 a_mViewProjInv)
@@ -81,27 +47,61 @@ static inline void transform_ray3f(float4x4 a_mWorldViewInv, float3* ray_pos, fl
   (*ray_dir)  = normalize(diff);
 }
 
-void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, uint32_t height) // (tid,tidX,tidY,tidZ) are SPECIAL PREDEFINED NAMES!!!
+float4 RayMarchConstantFog(float tmin, float tmax, float& alpha)
+{
+  float dt = 0.05f;
+	float t  = tmin;
+	
+	alpha = 1.0f;
+	float4 color = float4(0.0f);
+	
+	while(t < tmax && alpha > 0.01f)
+	{
+	  float a = 0.025f;
+	  color += a*alpha*float4(1.0f,1.0f,0.0f,0.0f);
+	  alpha *= (1.0f-a);
+	  t += dt;
+	}
+	
+	return color;
+}
+
+static inline unsigned RealColorToUint32(float4 real_color)
+{
+  float  r = real_color[0]*255.0f;
+  float  g = real_color[1]*255.0f;
+  float  b = real_color[2]*255.0f;
+  float  a = real_color[3]*255.0f;
+
+  unsigned char red   = (unsigned char)r;
+  unsigned char green = (unsigned char)g;
+  unsigned char blue  = (unsigned char)b;
+  unsigned char alpha = (unsigned char)a;
+
+  return red | (green << 8) | (blue << 16) | (alpha << 24);
+}
+
+void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, uint32_t height) 
 {
   for(uint32_t y=0;y<height;y++) 
   {
     for(uint32_t x=0;x<width;x++) 
     {
-      auto rayDir      = EyeRayDir((float(x) + 0.5f) / float(width), (float(y) + 0.5f) / float(height), m_worldViewProjInv); 
-      auto rayPos      = float3(0.0f, 0.0f, 0.0f);
+      float3 rayDir = EyeRayDir((float(x) + 0.5f) / float(width), (float(y) + 0.5f) / float(height), m_worldViewProjInv); 
+      float3 rayPos = float3(0.0f, 0.0f, 0.0f);
 
       transform_ray3f(m_worldViewInv, &rayPos, &rayDir);
       
-      auto tNearAndFar = RayBoxIntersection(rayPos, rayDir, float3(-1,-1,-1), float3(1,1,1));
-      //auto tNearAndFar = RaySphereHit(rayPos, rayDir, float4(0,0,0,3.0f)); // sphere at pos (0,0,0) and radius = 3
+      float2 tNearAndFar = RayBoxIntersection(rayPos, rayDir, float3(-1,-1,-1), float3(1,1,1));
       
-      uint32_t resColor = 0;
+      float4 resColor(0.0f);
       if(tNearAndFar.x < tNearAndFar.y && tNearAndFar.x > 0.0f)
       {
-        resColor = 0x0000FFFF;
+        float alpha = 1.0f;
+	      resColor = RayMarchConstantFog(tNearAndFar.x, tNearAndFar.y, alpha);
       }
       
-      out_color[y*width+x] = resColor;
+      out_color[y*width+x] = RealColorToUint32(resColor);
     }
   }
 }
@@ -110,4 +110,3 @@ void RayMarcherExample::RayMarch(uint32_t* out_color, uint32_t width, uint32_t h
 {
   kernel2D_RayMarch(out_color, width, height);
 }  
-

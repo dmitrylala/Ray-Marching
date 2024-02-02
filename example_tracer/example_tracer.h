@@ -14,7 +14,7 @@ public:
 
   RayMarcherExample()
   {
-    const float4x4 view = lookAt(float3(0,2,-5), float3(0,0,0), float3(0,1,0)); // pos, look_at, up
+    const float4x4 view = lookAt(float3(0,1.5,-3), float3(0,0,0), float3(0,1,0)); // pos, look_at, up
     const float4x4 proj = perspectiveMatrix(90.0f, 1.0f, 0.1f, 100.0f);
     m_worldViewInv      = inverse4x4(view); 
     m_worldViewProjInv  = inverse4x4(proj); 
