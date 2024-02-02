@@ -20,14 +20,20 @@ public:
     m_worldViewProjInv  = inverse4x4(proj); 
   }
 
+  void SetWorldViewMatrix(const float4x4& a_mat) {m_worldViewInv = inverse4x4(a_mat);}
+
   virtual void kernel2D_RayMarch(uint32_t* out_color, uint32_t width, uint32_t height);
   virtual void RayMarch(uint32_t* out_color, uint32_t width, uint32_t height);  
 
   virtual void CommitDeviceData() {}                                       // will be overriden in generated class
-  virtual void GetExecutionTime(const char* a_funcName, float a_out[4]) {} // will be overriden in generated class
+  virtual void UpdateMembersPlainData() {}                                 // will be overriden in generated class (optional function)
+  //virtual void UpdateMembersVectorData() {}                              // will be overriden in generated class (optional function)
+  //virtual void UpdateMembersTexureData() {}                              // will be overriden in generated class (optional function)
+  virtual void GetExecutionTime(const char* a_funcName, float a_out[4]);   // will be overriden in generated class
 
 protected:
 
   float4x4 m_worldViewProjInv;
   float4x4 m_worldViewInv;
+  float    rayMarchTime;
 };

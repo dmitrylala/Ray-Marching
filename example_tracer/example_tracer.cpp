@@ -1,4 +1,5 @@
 #include <vector>
+#include <chrono>
 #include "example_tracer.h"
 
 float2 RayBoxIntersection(float3 ray_pos, float3 ray_dir, float3 boxMin, float3 boxMax)
@@ -107,6 +108,14 @@ void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, u
 }
 
 void RayMarcherExample::RayMarch(uint32_t* out_color, uint32_t width, uint32_t height)
-{
+{ 
+  auto start = std::chrono::high_resolution_clock::now();
   kernel2D_RayMarch(out_color, width, height);
+  rayMarchTime = float(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start).count())/1000.f;
 }  
+
+void RayMarcherExample::GetExecutionTime(const char* a_funcName, float a_out[4])
+{
+  if(std::string(a_funcName) == "RayMarch")
+    a_out[0] =  rayMarchTime;
+}
