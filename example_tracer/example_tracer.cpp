@@ -35,20 +35,25 @@ static inline float2 RaySphereHit(float3 orig, float3 dir, float4 sphere) // see
   return result;
 }
 
-static inline float3 EyeRayDir(float x, float y, float w, float h, float4x4 a_mViewProjInv) // g_mViewProjInv
+static inline float3 EyeRayDir(float x, float y, float4x4 a_mViewProjInv)
 {
-  float4 pos = float4( 2.0f * (x + 0.5f) / w - 1.0f, 
-                      -2.0f * (y + 0.5f) / h + 1.0f, 
-                       0.0f, 
-                       1.0f );
-
-  pos = a_mViewProjInv*pos;
+  float4 pos = float4(2.0f*x - 1.0f, 2.0f*y - 1.0f, 0.0f, 1.0f );
+  pos = a_mViewProjInv * pos;
   pos /= pos.w;
-
-  pos.y *= (-1.0f);
-
   return normalize(to_float3(pos));
 }
+
+static inline void transform_ray3f(float4x4 a_mWorldViewInv, float3* ray_pos, float3* ray_dir) 
+{
+  float3 pos  = mul4x3(a_mWorldViewInv, (*ray_pos));
+  float3 pos2 = mul4x3(a_mWorldViewInv, ((*ray_pos) + 100.0f*(*ray_dir)));
+
+  float3 diff = pos2 - pos;
+
+  (*ray_pos)  = pos;
+  (*ray_dir)  = normalize(diff);
+}
+
 
 void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, uint32_t height) // (tid,tidX,tidY,tidZ) are SPECIAL PREDEFINED NAMES!!!
 {
@@ -56,10 +61,12 @@ void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, u
   {
     for(uint32_t x=0;x<width;x++) 
     {
-      auto rayDir      = EyeRayDir((float)x + 0.5f, (float)y + 0.5f, (float)width, (float)height, m_worldViewProjInv); 
-      auto rayPos      = float3(0.0f, 2.0f, -5.0f);
+      auto rayDir      = EyeRayDir((float(x) + 0.5f) / float(width), (float(y) + 0.5f) / float(height), m_worldViewProjInv); 
+      auto rayPos      = float3(0.0f, 0.0f, 0.0f);
+
+      transform_ray3f(m_worldViewInv, &rayPos, &rayDir);
       
-      auto tNearAndFar = RaySphereHit(rayPos, rayDir, float4(0,0,0.0f,2.0f));
+      auto tNearAndFar = RaySphereHit(rayPos, rayDir, float4(0,0,0,3.0f)); // sphere at pos (0,0,0) and radius = 3
       
       uint32_t resColor = 0;
       if(tNearAndFar.x < tNearAndFar.y)
