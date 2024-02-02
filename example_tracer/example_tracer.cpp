@@ -35,6 +35,33 @@ static inline float2 RaySphereHit(float3 orig, float3 dir, float4 sphere) // see
   return result;
 }
 
+float2 RayBoxIntersection(float3 ray_pos, float3 ray_dir, float3 boxMin, float3 boxMax)
+{
+  ray_dir.x = 1.0f/ray_dir.x; // may precompute if intersect many boxes
+  ray_dir.y = 1.0f/ray_dir.y; // may precompute if intersect many boxes
+  ray_dir.z = 1.0f/ray_dir.z; // may precompute if intersect many boxes
+
+  float lo = ray_dir.x*(boxMin.x - ray_pos.x);
+  float hi = ray_dir.x*(boxMax.x - ray_pos.x);
+  
+  float tmin = std::min(lo, hi);
+  float tmax = std::max(lo, hi);
+
+  float lo1 = ray_dir.y*(boxMin.y - ray_pos.y);
+  float hi1 = ray_dir.y*(boxMax.y - ray_pos.y);
+
+  tmin = std::max(tmin, std::min(lo1, hi1));
+  tmax = std::min(tmax, std::max(lo1, hi1));
+
+  float lo2 = ray_dir.z*(boxMin.z - ray_pos.z);
+  float hi2 = ray_dir.z*(boxMax.z - ray_pos.z);
+
+  tmin = std::max(tmin, std::min(lo2, hi2));
+  tmax = std::min(tmax, std::max(lo2, hi2));
+  
+  return float2(tmin, tmax);//(tmin <= tmax) && (tmax > 0.f);
+}
+
 static inline float3 EyeRayDir(float x, float y, float4x4 a_mViewProjInv)
 {
   float4 pos = float4(2.0f*x - 1.0f, 2.0f*y - 1.0f, 0.0f, 1.0f );
@@ -54,7 +81,6 @@ static inline void transform_ray3f(float4x4 a_mWorldViewInv, float3* ray_pos, fl
   (*ray_dir)  = normalize(diff);
 }
 
-
 void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, uint32_t height) // (tid,tidX,tidY,tidZ) are SPECIAL PREDEFINED NAMES!!!
 {
   for(uint32_t y=0;y<height;y++) 
@@ -66,10 +92,11 @@ void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, u
 
       transform_ray3f(m_worldViewInv, &rayPos, &rayDir);
       
-      auto tNearAndFar = RaySphereHit(rayPos, rayDir, float4(0,0,0,3.0f)); // sphere at pos (0,0,0) and radius = 3
+      auto tNearAndFar = RayBoxIntersection(rayPos, rayDir, float3(-1,-1,-1), float3(1,1,1));
+      //auto tNearAndFar = RaySphereHit(rayPos, rayDir, float4(0,0,0,3.0f)); // sphere at pos (0,0,0) and radius = 3
       
       uint32_t resColor = 0;
-      if(tNearAndFar.x < tNearAndFar.y)
+      if(tNearAndFar.x < tNearAndFar.y && tNearAndFar.x > 0.0f)
       {
         resColor = 0x0000FFFF;
       }
