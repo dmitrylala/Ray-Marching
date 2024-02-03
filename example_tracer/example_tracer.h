@@ -23,7 +23,7 @@ public:
   void SetWorldViewMatrix(const float4x4& a_mat) {m_worldViewInv = inverse4x4(a_mat);}
 
   virtual void kernel2D_RayMarch(uint32_t* out_color, uint32_t width, uint32_t height);
-  virtual void RayMarch(uint32_t* out_color, uint32_t width, uint32_t height);  
+  virtual void RayMarch(uint32_t* out_color [[size("width*height")]], uint32_t width, uint32_t height);  
 
   virtual void CommitDeviceData() {}                                       // will be overriden in generated class
   virtual void UpdateMembersPlainData() {}                                 // will be overriden in generated class (optional function)

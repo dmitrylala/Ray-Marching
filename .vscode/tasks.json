@@ -22,9 +22,9 @@
             ]
         },
         {
-            "label": "Build Kernels (GLSL)",
+            "label": "Build Shaders (GLSL, example_tracer)",
             "type": "shell",
-            "command": "cd shaders_generated && bash build.sh",
+            "command": "cd example_tracer/shaders_generated && bash build.sh",
             "group": "build",
             "problemMatcher": [
                 "$gcc"

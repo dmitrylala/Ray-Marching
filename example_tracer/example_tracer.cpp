@@ -1,5 +1,7 @@
 #include <vector>
 #include <chrono>
+#include <string>
+
 #include "example_tracer.h"
 
 float2 RayBoxIntersection(float3 ray_pos, float3 ray_dir, float3 boxMin, float3 boxMax)
@@ -65,17 +67,17 @@ float4 RayMarchConstantFog(float tmin, float tmax, float& alpha)
 	return color;
 }
 
-static inline unsigned RealColorToUint32(float4 real_color)
+static inline uint32_t RealColorToUint32(float4 real_color)
 {
   float  r = real_color[0]*255.0f;
   float  g = real_color[1]*255.0f;
   float  b = real_color[2]*255.0f;
   float  a = real_color[3]*255.0f;
 
-  unsigned char red   = (unsigned char)r;
-  unsigned char green = (unsigned char)g;
-  unsigned char blue  = (unsigned char)b;
-  unsigned char alpha = (unsigned char)a;
+  uint32_t red   = (uint32_t)r;
+  uint32_t green = (uint32_t)g;
+  uint32_t blue  = (uint32_t)b;
+  uint32_t alpha = (uint32_t)a;
 
   return red | (green << 8) | (blue << 16) | (alpha << 24);
 }

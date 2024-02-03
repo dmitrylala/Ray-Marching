@@ -7,8 +7,10 @@
 #include "example_tracer/example_tracer.h"
 #include "Image2d.h"
 
-//#include "vk_context.h"
-//std::shared_ptr<TestClass> CreateTestClass_Generated(vk_utils::VulkanContext a_ctx, size_t a_maxThreadsGenerated);
+#ifdef USE_VULKAN
+#include "vk_context.h"
+std::shared_ptr<RayMarcherExample> CreateRayMarcherExample_Generated(vk_utils::VulkanContext a_ctx, size_t a_maxThreadsGenerated); 
+#endif
 
 int main(int argc, const char** argv)
 {
@@ -21,15 +23,18 @@ int main(int argc, const char** argv)
   uint WIN_WIDTH  = 512;
   uint WIN_HEIGHT = 512;
 
-  bool onGPU = false;
   std::shared_ptr<RayMarcherExample> pImpl = nullptr;
-  //if(onGPU)
-  //{
-  //  unsigned int a_preferredDeviceId = args.getOptionValue<int>("--gpu_id", 0);
-  //  auto ctx = vk_utils::globalContextGet(enableValidationLayers, a_preferredDeviceId);
-  //  pImpl = CreateTestClass_Generated(ctx, WIN_WIDTH*WIN_HEIGHT);
-  //}
-  //else
+  #ifdef USE_VULKAN
+  bool onGPU = true; // TODO: you can read it from command line
+  if(onGPU)
+  {
+    auto ctx = vk_utils::globalContextGet(enableValidationLayers, 0);
+    pImpl    = CreateRayMarcherExample_Generated(ctx, WIN_WIDTH*WIN_HEIGHT);
+  }
+  else
+  #else
+  bool onGPU = false;
+  #endif
     pImpl = std::make_shared<RayMarcherExample>();
 
   pImpl->CommitDeviceData();
