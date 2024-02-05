@@ -28,4 +28,5 @@ implementation of various radiance fields in C++
    * cmake -DCMAKE_BUILD_TYPE=Release -DUSE_VULKAN=ON ..
    * make -j 8
    * Note that the program will seek for 'example_tracer/shaders_generated/kernel2D_RayMarch.comp.spv' 
-   * Therefore you have to run it from LiteRF root folder (what is done by default in VS Code config) or copy appropriate SPIR-V file to'cmake-build-release/example_tracer/shaders_generated/kernel2D_RayMarch.comp.spv'
+   * Therefore you have to run it from LiteRF root folder (what is done by default in VS Code config) or copy appropriate SPIR-V file to get 'cmake-build-release/example_tracer/shaders_generated/kernel2D_RayMarch.comp.spv'
+   
