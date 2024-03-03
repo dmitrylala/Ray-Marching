@@ -3,13 +3,14 @@
 #include <vector>
 #include <memory>  // for shared pointers
 #include <iomanip> // for std::fixed/std::setprecision
+#include <sstream>
 
 #include "example_tracer/example_tracer.h"
 #include "Image2d.h"
 
 #ifdef USE_VULKAN
 #include "vk_context.h"
-std::shared_ptr<RayMarcherExample> CreateRayMarcherExample_Generated(vk_utils::VulkanContext a_ctx, size_t a_maxThreadsGenerated); 
+std::shared_ptr<RayMarcherExample> CreateRayMarcherExample_Generated(vk_utils::VulkanContext a_ctx, size_t a_maxThreadsGenerated);
 #endif
 
 int main(int argc, const char** argv)
@@ -39,18 +40,18 @@ int main(int argc, const char** argv)
 
   pImpl->CommitDeviceData();
 
-  std::vector<uint> pixelData(WIN_WIDTH*WIN_HEIGHT);  
+  std::vector<uint> pixelData(WIN_WIDTH*WIN_HEIGHT);
 
-  for(int angleY = 0; angleY < 360; angleY += 10) 
+  for(int angleY = 0; angleY < 360; angleY += 10)
   {
     float4x4 mRot    = rotate4x4Y(float(angleY)*DEG_TO_RAD);
     float4   camPos  = mRot*float4(0,0,-3,0) + float4(0,1.5f,0,1);              // rotate and than translate camera position
-    float4x4 viewMat = lookAt(to_float3(camPos), float3(0,0,0), float3(0,1,0)); // pos, look_at, up  
-    
+    float4x4 viewMat = lookAt(to_float3(camPos), float3(0,0,0), float3(0,1,0)); // pos, look_at, up
+
     pImpl->SetWorldViewMatrix(viewMat);
     pImpl->UpdateMembersPlainData();                                            // copy all POD members from CPU to GPU in GPU implementation
     pImpl->RayMarch(pixelData.data(), WIN_WIDTH, WIN_HEIGHT);
-  
+
     float timings[4] = {0,0,0,0};
     pImpl->GetExecutionTime("RayMarch", timings);
 
@@ -65,7 +66,7 @@ int main(int argc, const char** argv)
 
     std::cout << "angl = " << angleY << ", timeRender = " << timings[0] << " ms, timeCopy = " <<  timings[1] + timings[2] << " ms " << std::endl;
   }
-  
+
   pImpl = nullptr;
   return 0;
 }
