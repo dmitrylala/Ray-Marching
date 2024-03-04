@@ -47,7 +47,7 @@ endif()
 
 if (NOT MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
-  set(PLATFORM_DEPENDEPNT_LIBS "${Vulkan_LIBRARY} dl")
+  set(PLATFORM_DEPENDEPNT_LIBS ${Vulkan_LIBRARY} dl)
 endif()
 
 if(USE_VULKAN)

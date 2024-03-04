@@ -20,6 +20,10 @@ implementation of various radiance fields in C++
    * you need to change all paths to your LiteRF sources
    * launch kernel_slicer with this config
    * you can make you own command line script if don't like VS Code configs
+   * alternatively you can use bash/bat scripts:
+      * bash setup.sh my/path/kernel_slicer/cmake-build-release/kslicer my/path/to/kernel_slicer (once)
+      * bash bash run_kslicer.sh
+      
 3. build shaders:
    * cd example_tracer/shaders_generated && bash build.sh
    * or use record 'Build Shaders (GLSL, example_tracer)' in vs code config 'tasks.json': just press 'Ctr+Shift+B'
