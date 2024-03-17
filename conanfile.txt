@@ -1,0 +1,10 @@
+[requires]
+stb/cci.20230920
+llvm-openmp/17.0.6
+
+[generators]
+CMakeToolchain
+CMakeDeps
+
+[layout]
+cmake_layout
