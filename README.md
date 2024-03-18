@@ -27,8 +27,9 @@ timeRender = 32.379 ms, timeCopy = 1.382 ms
 
 ## Сборка
 
-Скачиваем зависимости:
+Скачиваем код и зависимости:
 ```
+git clone -b literf git@github.com:dmitrylala/Ray-Marching.git && cd Ray-Marching
 git submodule init && git submodule update
 ```
 
