@@ -14,3 +14,6 @@ build: ## Build app
 	conan install . --build=missing -s build_type=Release --output-folder=build
 	cmake . -B build -DCMAKE_BUILD_TYPE=Release
 	cmake --build build --target all
+
+lint: ## Run linters
+	cpplint include/* bin/*

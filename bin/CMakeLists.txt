@@ -10,6 +10,7 @@ if (NOT USE_VULKAN)
 	# set_target_properties(testapp PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 	set_target_properties(raymarching PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+	# target_include_directories(raymarching PUBLIC ${CMAKE_SOURCE_DIR}/external/LiteMath)
 	target_link_libraries(raymarching LINK_PUBLIC 
 							ray_marching_lib
 							OpenMP::OpenMP_CXX)						

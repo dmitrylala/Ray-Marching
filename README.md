@@ -1,13 +1,22 @@
 # Distance-Aided Ray Marching
 
-
-## Кодстайл
-C++ кодстайл - [Google Style Guide](https://google.github.io/styleguide/cppguide.html), python кодстайл - PEP8, исключения указаны в CPPLINT.cfg и в .pylintrc.
+Реализация алгоритма Distance-Aided Ray Marching для рендеринга треугольника Серпинского на CPU и GPU под Vulkan.
 
 ## Установка зависимостей и сборка
-Из зависимостей понадобится cmake, clang10 (либо другая версия, нужно ее позже указать conan) и poetry:
+
+Список зависимостей:
+- python (>=3.8,<3.11)
+- cmake (>=3.16)
+- пакетный менеджер poetry
+
+Poetry можно поставить так:
 ```
 pip install poetry
+```
+
+Создаем и активируем venv:
+```
+poetry install --no-root && poetry shell
 ```
 
 Сборку и запуск тестов нужно выполнять под venv, который устанавливается и активируется с помощью poetry:
@@ -33,3 +42,7 @@ pytest test/integr/hashmap.py
 cpplint include/* bin/* test/unit/*
 pylint test/integr/hashmap.py
 ```
+
+## Кодстайл
+C++ кодстайл - [Google Style Guide](https://google.github.io/styleguide/cppguide.html), python кодстайл - PEP8, исключения указаны в CPPLINT.cfg и в .pylintrc.
+
