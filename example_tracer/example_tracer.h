@@ -1,9 +1,12 @@
 #pragma once
 
 #include <vector>
+#include <chrono>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <cstdint>
+
 
 #include "LiteMath.h"
 using namespace LiteMath;
@@ -34,5 +37,6 @@ public:
 protected:
     float4x4 m_worldViewProjInv;
     float4x4 m_worldViewInv;
+    float    copyTime;
     float    rayMarchTime;
 };

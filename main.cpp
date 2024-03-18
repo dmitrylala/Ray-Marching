@@ -4,6 +4,7 @@
 #include <memory>  // for shared pointers
 #include <iomanip> // for std::fixed/std::setprecision
 #include <sstream>
+#include <cstdlib>
 
 #include "example_tracer/example_tracer.h"
 #include "Image2d.h"
@@ -11,13 +12,25 @@
 #ifdef USE_VULKAN
 #include "vk_context.h"
 std::shared_ptr<RayMarcherExample> CreateRayMarcherExample_generated(vk_utils::VulkanContext a_ctx, size_t a_maxThreadsGenerated);
+#else
+#include <omp.h>
 #endif
+
 
 int main(int argc, const char** argv) {
     #ifndef NDEBUG
     bool enableValidationLayers = true;
     #else
     bool enableValidationLayers = false;
+    #endif
+
+    int n_threads = 1;
+    if (argc > 1) {
+        n_threads = std::max(atoi(argv[1]), 1);
+    }
+
+    #ifndef USE_VULKAN
+    omp_set_num_threads(n_threads);
     #endif
 
     uint WIN_WIDTH  = 512;
@@ -64,6 +77,7 @@ int main(int argc, const char** argv) {
 
     LiteImage::SaveBMP(fileName.c_str(), pixelData.data(), WIN_WIDTH, WIN_HEIGHT);
 
+    std::cout << "n_threads = " << n_threads << ", onGPU = " << onGPU << std::endl;
     std::cout << "timeRender = " << timings[0] << " ms, timeCopy = " <<  timings[1] + timings[2] << " ms " << std::endl;
 
     pImpl = nullptr;

@@ -1,7 +1,3 @@
-#include <vector>
-#include <chrono>
-#include <string>
-
 #include "example_tracer.h"
 
 
@@ -112,13 +108,15 @@ static inline uint32_t MarchOneRay(float3 rayPos, float3 rayDir) {
 
 void RayMarcherExample::kernel2D_RayMarch(uint32_t* out_color, uint32_t width, uint32_t height) 
 {
+    #ifdef USE_VULKAN
+    #else
+    #pragma omp parallel for
+    #endif
     for (uint32_t y = 0; y < height; ++y) {
         for (uint32_t x = 0; x < width; ++x) {
             float3 rayDir = EyeRayDir((float(x) + 0.5f) / float(width), (float(y) + 0.5f) / float(height), m_worldViewProjInv); 
             float3 rayPos = float3(0.0f, 0.0f, 0.0f);
-
             transform_ray3f(m_worldViewInv, &rayPos, &rayDir);
-
             out_color[y * width + x] = MarchOneRay(rayPos, rayDir);
         }
     }
@@ -134,5 +132,5 @@ void RayMarcherExample::RayMarch(uint32_t* out_color, uint32_t width, uint32_t h
 void RayMarcherExample::GetExecutionTime(const char* a_funcName, float a_out[4])
 {
     if (std::string(a_funcName) == "RayMarch")
-        a_out[0] =  rayMarchTime;
+        a_out[0] = rayMarchTime;
 }
