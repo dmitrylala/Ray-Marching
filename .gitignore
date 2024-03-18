@@ -32,3 +32,5 @@
 *.app
 
 config.txt
+
+.vscode
